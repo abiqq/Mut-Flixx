@@ -1,68 +1,780 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MutFlix - Watch Now</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/styles.css">
+    <title>NusantaraHorror - Streaming Film Horor Indonesia</title>
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8B0000;
+            --secondary: #1a1a1a;
+            --accent: #FF4500;
+            --text: #f0f0f0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: #000;
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        
+        /* Header Styles */
+        header {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.5));
+            padding: 1rem 5%;
+            position: fixed;
+            width: 100%;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+        
+        header.scrolled {
+            background: rgba(0,0,0,0.9);
+            box-shadow: 0 5px 20px rgba(139,0,0,0.3);
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(255,69,0,0.7);
+        }
+        
+        .logo span {
+            color: var(--accent);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            background: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1684&q=80') no-repeat center center/cover;
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.5));
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(139,0,0,0.7);
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        
+        /* Movies Section */
+        .movies {
+            padding: 5rem 5%;
+            background: var(--secondary);
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 50%;
+            height: 3px;
+            background: var(--primary);
+        }
+        
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .movie-card {
+            background: #111;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        
+        .movie-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(139,0,0,0.3);
+        }
+        
+        .movie-poster {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+            transition: all 0.5s ease;
+        }
+        
+        .movie-card:hover .movie-poster {
+            opacity: 0.3;
+        }
+        
+        .movie-info {
+            padding: 1rem;
+        }
+        
+        .movie-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .movie-year {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .play-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: var(--primary);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .movie-card:hover .play-btn {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        /* Video Player Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .modal-content {
+            width: 90%;
+            max-width: 1200px;
+            background: #111;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+            background: rgba(0,0,0,0.5);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .close-modal:hover {
+            color: var(--accent);
+            transform: rotate(90deg);
+            background: rgba(139,0,0,0.7);
+        }
+        
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+        }
+        
+        .video-js {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Custom VideoJS Skin */
+        .vjs-theme-horror .vjs-big-play-button {
+            background: rgba(139, 0, 0, 0.7) !important;
+            border: none !important;
+            width: 80px !important;
+            height: 80px !important;
+            border-radius: 50% !important;
+            line-height: 80px !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+        }
+        
+        .vjs-theme-horror .vjs-control-bar {
+            background: rgba(0, 0, 0, 0.7) !important;
+        }
+        
+        .vjs-theme-horror .vjs-play-progress {
+            background: var(--accent) !important;
+        }
+        
+        .vjs-theme-horror .vjs-slider {
+            background: rgba(255, 255, 255, 0.2) !important;
+        }
+        
+        /* Footer */
+        footer {
+            background: #000;
+            padding: 3rem 5%;
+            text-align: center;
+        }
+        
+        .footer-logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-links a {
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+        
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .social-icons a {
+            color: var(--text);
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .social-icons a:hover {
+            color: var(--accent);
+            transform: translateY(-5px);
+        }
+        
+        .copyright {
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        /* Animations */
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .spinner::after {
+            content: '';
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(139, 0, 0, 0.3);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        /* Quality Selector */
+        .quality-selector {
+            position: absolute;
+            bottom: 60px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 10;
+            display: none;
+        }
+        
+        .quality-selector.active {
+            display: block;
+        }
+        
+        .quality-option {
+            color: white;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        
+        .quality-option:hover {
+            background: rgba(139, 0, 0, 0.5);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .movies-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+            
+            .modal-content {
+                width: 95%;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Header -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="index.html">MutFlix</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Genres</a>
-                        <ul class="dropdown-menu" id="genreDropdown">
-                            <!-- Dynamic genres will be added via JS -->
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <input type="text" class="form-control" placeholder="Search..." id="searchBar">
-                    </li>
-                </ul>
+    <!-- Loading Spinner -->
+    <div class="spinner" id="spinner"></div>
+    
+    <header id="header">
+        <nav>
+            <div class="logo">Nusantara<span>Horror</span></div>
+            <div class="nav-links">
+                <a href="#">Beranda</a>
+                <a href="#">Film</a>
+                <a href="#">Koleksi</a>
+                <a href="#">Tentang</a>
+                <a href="#">Kontak</a>
             </div>
+        </nav>
+    </header>
+    
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Rasakan <span>Deraian</span> Horor Nusantara</h1>
+            <p>Nikmati koleksi film horor Indonesia terbaik dengan kualitas streaming tinggi. Dari legenda urban hingga misteri kuno, semua ada di sini.</p>
+            <a href="#movies" class="btn">Jelajahi Sekarang</a>
         </div>
-    </nav>
-
-    <!-- Video Player -->
-    <section class="watch py-5">
-        <div class="container">
-            <h2 id="videoTitle" class="mb-4">Streaming Content</h2>
-            <!-- HTML5 Video Player (default) -->
-            <video id="videoPlayer" controls preload="auto" width="100%" style="max-width: 100%; border-radius: 8px;">
-                <source id="videoSource" src="" type="video/mp4">
-                <p>Browser Anda tidak mendukung pemutar video HTML5.</p>
-            </video>
-            <!-- VLC Plugin (fallback for NPAPI-compatible browsers) -->
-            <object type="application/x-vlc-plugin" id="vlcPlayer" width="100%" height="100%" style="display: none; border-radius: 8px;">
-                <param name="movie" id="vlcSource" value="">
-                <param name="autoplay" value="true">
-                <param name="controls" value="true">
-                <p>Plugin VLC tidak tersedia. Gunakan browser seperti Waterfox atau Pale Moon, atau instal VLC Media Player.</p>
-            </object>
-            <div id="errorLog" class="mt-3 text-danger"></div>
-            <div id="errorHelp" class="mt-2 text-muted" style="display: none;">
-                <p>Maaf, video tidak dapat dimuat. Coba periksa koneksi internet Anda, pastikan URL valid, atau gunakan URL streaming lain. Jika menggunakan VLC plugin, pastikan browser mendukung NPAPI.</p>
+    </section>
+    
+    <section class="movies" id="movies">
+        <h2 class="section-title">Film Horor Terbaru</h2>
+        <div class="movies-grid">
+            <!-- Movie 1 -->
+            <div class="movie-card" data-movie="JurnaRisa" data-poster="https://image.tmdb.org/t/p/original/znicsfFuTboZsNzBdZNKYp7VH4P.jpg">
+                <img src="https://image.tmdb.org/t/p/original/znicsfFuTboZsNzBdZNKYp7VH4P.jpg" alt="JurnaRisa" class="movie-poster">
+                <div class="play-btn">
+                    <i class="fas fa-play"></i>
+                </div>
+                <div class="movie-info">
+                    <h3 class="movie-title">JurnaRisa</h3>
+                    <p class="movie-year">2024</p>
+                </div>
+            </div>
+            
+            <!-- Movie 2 -->
+            <div class="movie-card" data-movie="Ketindihan" data-poster="https://www.endcoalnow.com/wp-content/uploads/2025/05/lGAqDi4IeLTzLmFXOEwNPSLBU3Z-152x228.jpg">
+                <img src="https://www.endcoalnow.com/wp-content/uploads/2025/05/lGAqDi4IeLTzLmFXOEwNPSLBU3Z-152x228.jpg" alt="Ketindihan" class="movie-poster">
+                <div class="play-btn">
+                    <i class="fas fa-play"></i>
+                </div>
+                <div class="movie-info">
+                    <h3 class="movie-title">Ketindihan</h3>
+                    <p class="movie-year">2024</p>
+                </div>
+            </div>
+            
+            <!-- Movie 3 -->
+            <div class="movie-card" data-movie="Marni" data-poster="https://www.endcoalnow.com/wp-content/uploads/2025/05/marni-poster.jpg">
+                <img src="https://www.endcoalnow.com/wp-content/uploads/2025/05/marni-poster.jpg" alt="Marni: The Story Of Wewe Gombel" class="movie-poster">
+                <div class="play-btn">
+                    <i class="fas fa-play"></i>
+                </div>
+                <div class="movie-info">
+                    <h3 class="movie-title">Marni: The Story Of Wewe Gombel</h3>
+                    <p class="movie-year">2024</p>
+                </div>
+            </div>
+            
+            <!-- Movie 4 -->
+            <div class="movie-card" data-movie="Petaka Gunung Gede" data-poster="https://new14.ngefilm.site/wp-content/uploads/2025/06/rmh9oNW0eaUwhQyW22mgzur0NpE-170x255.webp">
+                <img src="https://new14.ngefilm.site/wp-content/uploads/2025/06/rmh9oNW0eaUwhQyW22mgzur0NpE-170x255.webp" alt="Petaka Gunung Gede" class="movie-poster">
+                <div class="play-btn">
+                    <i class="fas fa-play"></i>
+                </div>
+                <div class="movie-info">
+                    <h3 class="movie-title">Petaka Gunung Gede</h3>
+                    <p class="movie-year">2025</p>
+                </div>
+            </div>
+            
+            <!-- Movie 5 -->
+            <div class="movie-card" data-movie="Pulung Gantung" data-poster="https://new14.ngefilm.site/wp-content/uploads/2025/06/v0izepha1mQpK0i71usiTZAzGsr.jpg">
+                <img src="https://new14.ngefilm.site/wp-content/uploads/2025/06/v0izepha1mQpK0i71usiTZAzGsr.jpg" alt="Pulung Gantung: Panti Ngendat" class="movie-poster">
+                <div class="play-btn">
+                    <i class="fas fa-play"></i>
+                </div>
+                <div class="movie-info">
+                    <h3 class="movie-title">Pulung Gantung: Panti Ngendat</h3>
+                    <p class="movie-year">2024</p>
+                </div>
+            </div>
+            
+            <!-- Movie 6 -->
+            <div class="movie-card" data-movie="Rumah Teteh" data-poster="https://new14.ngefilm.site/wp-content/uploads/2025/06/3M2SLZCS9zkgOFrAr1MsTYoULNs.jpg">
+                <img src="https://new14.ngefilm.site/wp-content/uploads/2025/06/3M2SLZCS9zkgOFrAr1MsTYoULNs.jpg" alt="Rumah Teteh Story of Helena" class="movie-poster">
+                <div class="play-btn">
+                    <i class="fas fa-play"></i>
+                </div>
+                <div class="movie-info">
+                    <h3 class="movie-title">Rumah Teteh Story of Helena</h3>
+                    <p class="movie-year">2025</p>
+                </div>
+            </div>
+            
+            <!-- Movie 7 -->
+            <div class="movie-card" data-movie="Jailangku Sandekala" data-poster="https://new14.ngefilm.site/wp-content/uploads/2025/06/rrAG3nzfG4pNkmTZTSxBAespWyD.jpg">
+                <img src="https://new14.ngefilm.site/wp-content/uploads/2025/06/rrAG3nzfG4pNkmTZTSxBAespWyD.jpg" alt="Jailangku Sandekala" class="movie-poster">
+                <div class="play-btn">
+                    <i class="fas fa-play"></i>
+                </div>
+                <div class="movie-info">
+                    <h3 class="movie-title">Jailangku Sandekala</h3>
+                    <p class="movie-year">2022</p>
+                </div>
             </div>
         </div>
     </section>
-
-    <!-- Footer -->
-    <footer class="bg-dark text-white text-center py-3">
-        <p>© 2025 MutFlix. All rights reserved.</p>
+    
+    <!-- Video Player Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="video-container">
+                <video id="video-player" class="video-js vjs-theme-horror vjs-big-play-centered" controls preload="auto" data-setup='{}'>
+                    <p class="vjs-no-js">
+                        Untuk menonton video ini harap aktifkan JavaScript, atau pertimbangkan untuk upgrade browser ke
+                        <a href="https://videojs.com/html5-video-support/" target="_blank">yang mendukung HTML5 video</a>
+                    </p>
+                </video>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="footer-logo">Nusantara<span>Horror</span></div>
+        <div class="footer-links">
+            <a href="#">Tentang Kami</a>
+            <a href="#">Kebijakan Privasi</a>
+            <a href="#">Syarat & Ketentuan</a>
+            <a href="#">FAQ</a>
+        </div>
+        <div class="social-icons">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+        </div>
+        <p class="copyright">© 2024 NusantaraHorror. All Rights Reserved.</p>
     </footer>
-
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
-    <script src="assets/script.js"></script>
+    
+    <!-- VideoJS and HLS.js -->
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
+    <script>
+        // Hide spinner when page loads
+        window.addEventListener('load', function() {
+            document.getElementById('spinner').style.display = 'none';
+        });
+        
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+        
+        // Movie streaming modal
+        const movieCards = document.querySelectorAll('.movie-card');
+        const modal = document.getElementById('modal');
+        const closeModal = document.querySelector('.close-modal');
+        
+        // Movie streams mapping
+        const movieStreams = {
+            'JurnaRisa': {
+                url: 'https://uqloads.xyz/stream/XWardVakU6O1T7En9R6-lA/kjhhiuahiuhgihdf/1751381966/27789856/index-v1-a1.m3u8',
+                poster: 'https://image.tmdb.org/t/p/original/znicsfFuTboZsNzBdZNKYp7VH4P.jpg'
+            },
+            'Ketindihan': {
+                url: 'https://movearnpre.com/stream/tRn2P440jxhZQI_IMSnpJQ/hjkrhuihghfvu/1751382757/25628213/index-v1-a1.m3u8',
+                poster: 'https://www.endcoalnow.com/wp-content/uploads/2025/05/lGAqDi4IeLTzLmFXOEwNPSLBU3Z-152x228.jpg'
+            },
+            'Marni': {
+                url: 'https://smoothpre.com/stream/IPZgvFl7u9qUHu7FyWDT7A/hjkrhuihghfvu/1751382894/23805400/index-v1-a1.m3u8',
+                poster: 'https://www.endcoalnow.com/wp-content/uploads/2025/05/marni-poster.jpg'
+            },
+            'Petaka Gunung Gede': {
+                url: 'https://movearnpre.com/stream/UYQ-AqNx_fWwwKeMcZhhKw/hjkrhuihghfvu/1751383107/26702917/index-v1-a1.m3u8',
+                poster: 'https://new14.ngefilm.site/wp-content/uploads/2025/06/rmh9oNW0eaUwhQyW22mgzur0NpE-170x255.webp'
+            },
+            'Pulung Gantung': {
+                url: 'https://movearnpre.com/stream/wtp_sOi8vwke1OZblLZFdg/hjkrhuihghfvu/1751383266/26555811/index-v1-a1.m3u8',
+                poster: 'https://new14.ngefilm.site/wp-content/uploads/2025/06/v0izepha1mQpK0i71usiTZAzGsr.jpg'
+            },
+            'Rumah Teteh': {
+                url: 'https://movearnpre.com/stream/9Xiw42UvvxfjNUmbJLuijg/hjkrhuihghfvu/1751383433/26713049/index-v1-a1.m3u8',
+                poster: 'https://new14.ngefilm.site/wp-content/uploads/2025/06/3M2SLZCS9zkgOFrAr1MsTYoULNs.jpg'
+            },
+            'Jailangku Sandekala': {
+                url: 'https://gradehgplus.com/stream/7dlwu3bO9tGJs19SmYcjSQ/kjhhiuahiuhgihdf/1751383543/53473043/index-v1-a1.m3u8',
+                poster: 'https://new14.ngefilm.site/wp-content/uploads/2025/06/rrAG3nzfG4pNkmTZTSxBAespWyD.jpg'
+            }
+        };
+        
+        // Initialize video player
+        let player;
+        
+        function initializePlayer(streamUrl, posterUrl) {
+            if (player) {
+                player.dispose();
+            }
+            
+            player = videojs('video-player', {
+                controls: true,
+                autoplay: true,
+                preload: 'auto',
+                poster: posterUrl,
+                fluid: true,
+                responsive: true,
+                playbackRates: [0.5, 1, 1.5, 2],
+                controlBar: {
+                    children: [
+                        'playToggle',
+                        'volumePanel',
+                        'currentTimeDisplay',
+                        'timeDivider',
+                        'durationDisplay',
+                        'progressControl',
+                        'liveDisplay',
+                        'remainingTimeDisplay',
+                        'customControlSpacer',
+                        'playbackRateMenuButton',
+                        'chaptersButton',
+                        'descriptionsButton',
+                        'subsCapsButton',
+                        'audioTrackButton',
+                        'fullscreenToggle'
+                    ]
+                }
+            });
+            
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(streamUrl);
+                hls.attachMedia(player.tech().el_);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    player.play();
+                });
+                
+                player.on('dispose', function() {
+                    hls.destroy();
+                });
+            } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
+                // For Safari which supports HLS natively
+                player.src(streamUrl);
+            } else {
+                console.error('HLS is not supported in this browser');
+            }
+        }
+        
+        movieCards.forEach(card => {
+            card.addEventListener('click', function() {
+                const movieTitle = this.getAttribute('data-movie');
+                const movieData = movieStreams[movieTitle];
+                
+                document.getElementById('spinner').style.display = 'flex';
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                
+                setTimeout(() => {
+                    initializePlayer(movieData.url, movieData.poster);
+                    document.getElementById('spinner').style.display = 'none';
+                }, 500);
+            });
+        });
+        
+        closeModal.addEventListener('click', function() {
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            if (player) {
+                player.pause();
+            }
+        });
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+                if (player) {
+                    player.pause();
+                }
+            }
+        });
+        
+        // Floating animation for some elements
+        const heroContent = document.querySelector('.hero-content');
+        heroContent.classList.add('floating');
+    </script>
 </body>
 </html>
