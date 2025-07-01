@@ -5,14 +5,14 @@ const content = [
         genre: "Horror Indo",
         thumbnail: "https://image.tmdb.org/t/p/original/znicsfFuTboZsNzBdZNKYp7VH4P.jpg",
         streamUrl: "https://uqloads.xyz/stream/XWardVakU6O1T7En9R6-lA/kjhhiuahiuhgihdf/1751381966/27789856/index-v1-a1.m3u8",
-        fallbackUrl: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8" // Fallback URL
+        fallbackUrl: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
     },
     {
         title: "Ketindihan",
         genre: "Horror Indo",
         thumbnail: "https://www.endcoalnow.com/wp-content/uploads/2025/05/lGAqDi4IeLTzLmFXOEwNPSLBU3Z-152x228.jpg",
         streamUrl: "https://movearnpre.com/stream/tRn2P440jxhZQI_IMSnpJQ/hjkrhuihghfvu/1751382757/25628213/index-v1-a1.m3u8",
-        fallbackUrl: "https://www.w3schools.com/html/mov_bbb.mp4" // Fallback URL
+        fallbackUrl: "https://www.w3schools.com/html/mov_bbb.mp4"
     },
     {
         title: "Marni: The Story Of Wewe Gombel",
@@ -155,44 +155,39 @@ function populateSearchResults(query) {
 
 // Video player setup
 function setupVideoPlayer() {
-    const player = videojs("videoPlayer", {
-        fluid: true,
-        responsive: true,
-        playbackRates: [0.5, 1, 1.5, 2],
-        html5: {
-            vhs: {
-                overrideNative: true
-            }
-        }
-    });
+    const player = document.getElementById("videoPlayer");
+    const source = document.getElementById("videoSource");
 
-    player.on("error", () => {
-        const error = player.error();
-        const errorMessage = `Error: ${error?.message || "Media tidak dapat dimuat"} (Kode: ${error?.code || "N/A"})`;
+    player.addEventListener("error", () => {
+        const error = player.error || { message: "Media tidak dapat dimuat", code: "N/A" };
+        const errorMessage = `Error: ${error.message} (Kode: ${error.code})`;
         document.getElementById("errorLog").innerText = errorMessage;
         document.getElementById("errorHelp").style.display = "block";
 
         // Detailed logging for debugging
         console.log("Stream Error Details:", {
             message: errorMessage,
-            url: player.currentSrc(),
-            type: player.currentType(),
+            url: source.src,
+            type: source.type,
             timestamp: new Date()
         });
 
         // Try fallback URL if available
-        const currentUrl = player.currentSrc();
+        const currentUrl = source.src;
         const contentItem = content.find(item => item.streamUrl === currentUrl);
         if (contentItem && contentItem.fallbackUrl) {
             console.log("Attempting fallback URL:", contentItem.fallbackUrl);
-            player.src({ src: contentItem.fallbackUrl, type: contentItem.fallbackUrl.endsWith(".m3u8") ? "application/x-mpegURL" : "video/mp4" });
+            source.src = contentItem.fallbackUrl;
+            source.type = contentItem.fallbackUrl.endsWith(".m3u8") ? "application/x-mpegURL" : "video/mp4";
+            player.load();
+            player.play().catch(err => console.log("Fallback play failed:", err));
         }
 
         // Optional: Send error to server
         // fetch('/log-error', {
         //     method: 'POST',
         //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify({ error: errorMessage, timestamp: new Date(), url: player.currentSrc() })
+        //     body: JSON.stringify({ error: errorMessage, timestamp: new Date(), url: source.src })
         // });
     });
 }
@@ -206,7 +201,8 @@ function playStream(streamUrl, title = "Streaming Content") {
         return;
     }
 
-    const player = videojs("videoPlayer");
+    const player = document.getElementById("videoPlayer");
+    const source = document.getElementById("videoSource");
     let type = "video/mp4";
     if (streamUrl.endsWith(".m3u8")) {
         type = "application/x-mpegURL"; // HLS
@@ -216,7 +212,9 @@ function playStream(streamUrl, title = "Streaming Content") {
 
     // Proxy URL (uncomment and configure if needed)
     // const proxyUrl = `http://localhost:3000/proxy?url=${encodeURIComponent(streamUrl)}`;
-    player.src({ src: streamUrl, type });
+    source.src = streamUrl;
+    source.type = type;
+    player.load();
     document.getElementById("videoTitle").innerText = title;
     document.getElementById("errorLog").innerText = "";
     document.getElementById("errorHelp").style.display = "none";
@@ -227,5 +225,12 @@ function playStream(streamUrl, title = "Streaming Content") {
         type: type,
         title: title,
         timestamp: new Date()
+    });
+
+    // Attempt to play
+    player.play().catch(err => {
+        console.log("Play failed:", err);
+        document.getElementById("errorLog").innerText = "Error: Gagal memutar video. Pastikan URL valid atau coba URL lain.";
+        document.getElementById("errorHelp").style.display = "block";
     });
 }
