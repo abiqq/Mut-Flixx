@@ -54,6 +54,9 @@ const content = [
 // Available genres
 const genres = ["Horror Indo", "Action", "Drama", "Comedy"];
 
+// Custom User Agent
+const customUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36";
+
 // GSAP Animations
 function applyAnimations() {
     gsap.from(".animate-title", { duration: 1.2, y: 60, opacity: 0, ease: "power3.out" });
@@ -153,26 +156,47 @@ function populateSearchResults(query) {
     populateContent(results, "searchGrid");
 }
 
+// Check if VLC plugin is available
+function isVlcPluginAvailable() {
+    const vlc = document.getElementById("vlcPlayer");
+    return !!(vlc && typeof vlc.play === "function");
+}
+
 // Video player setup
 function setupVideoPlayer() {
     const player = document.getElementById("videoPlayer");
     const source = document.getElementById("videoSource");
+    const vlcPlayer = document.getElementById("vlcPlayer");
+    const vlcSource = document.getElementById("vlcSource");
 
+    // Check if VLC plugin is available (for NPAPI browsers)
+    if (isVlcPluginAvailable()) {
+        console.log("VLC plugin detected, using VLC player");
+        player.style.display = "none";
+        vlcPlayer.style.display = "block";
+    } else {
+        console.log("VLC plugin not available, using HTML5 player");
+        player.style.display = "block";
+        vlcPlayer.style.display = "none";
+    }
+
+    // HTML5 player error handling
     player.addEventListener("error", () => {
         const error = player.error || { message: "Media tidak dapat dimuat", code: "N/A" };
         const errorMessage = `Error: ${error.message} (Kode: ${error.code})`;
         document.getElementById("errorLog").innerText = errorMessage;
         document.getElementById("errorHelp").style.display = "block";
 
-        // Detailed logging for debugging
+        // Detailed logging
         console.log("Stream Error Details:", {
             message: errorMessage,
             url: source.src,
             type: source.type,
+            userAgent: customUserAgent,
             timestamp: new Date()
         });
 
-        // Try fallback URL if available
+        // Try fallback URL
         const currentUrl = source.src;
         const contentItem = content.find(item => item.streamUrl === currentUrl);
         if (contentItem && contentItem.fallbackUrl) {
@@ -182,14 +206,25 @@ function setupVideoPlayer() {
             player.load();
             player.play().catch(err => console.log("Fallback play failed:", err));
         }
-
-        // Optional: Send error to server
-        // fetch('/log-error', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify({ error: errorMessage, timestamp: new Date(), url: source.src })
-        // });
     });
+
+    // VLC plugin error handling (basic)
+    if (isVlcPluginAvailable()) {
+        vlcPlayer.addEventListener("MediaPlayerNothingSpecial", () => {
+            const errorMessage = "Error: VLC plugin gagal memutar media";
+            document.getElementById("errorLog").innerText = errorMessage;
+            document.getElementById("errorHelp").style.display = "block";
+
+            // Try fallback URL
+            const currentUrl = vlcSource.value;
+            const contentItem = content.find(item => item.streamUrl === currentUrl);
+            if (contentItem && contentItem.fallbackUrl) {
+                console.log("Attempting fallback URL for VLC:", contentItem.fallbackUrl);
+                vlcSource.value = contentItem.fallbackUrl;
+                vlcPlayer.play();
+            }
+        });
+    }
 }
 
 // Play stream from URL
@@ -203,6 +238,9 @@ function playStream(streamUrl, title = "Streaming Content") {
 
     const player = document.getElementById("videoPlayer");
     const source = document.getElementById("videoSource");
+    const vlcPlayer = document.getElementById("vlcPlayer");
+    const vlcSource = document.getElementById("vlcSource");
+
     let type = "video/mp4";
     if (streamUrl.endsWith(".m3u8")) {
         type = "application/x-mpegURL"; // HLS
@@ -210,27 +248,49 @@ function playStream(streamUrl, title = "Streaming Content") {
         type = "application/dash+xml"; // DASH
     }
 
-    // Proxy URL (uncomment and configure if needed)
+    // Proxy URL (uncomment and configure if needed for CORS)
     // const proxyUrl = `http://localhost:3000/proxy?url=${encodeURIComponent(streamUrl)}`;
-    source.src = streamUrl;
-    source.type = type;
-    player.load();
+
+    // Use VLC plugin if available
+    if (isVlcPluginAvailable()) {
+        vlcSource.value = streamUrl; // Set VLC source
+        vlcPlayer.play();
+        console.log("Playing with VLC plugin:", {
+            url: streamUrl,
+            userAgent: customUserAgent,
+            title: title,
+            timestamp: new Date()
+        });
+    } else {
+        // Use HTML5 player with custom User Agent
+        source.src = streamUrl;
+        source.type = type;
+        player.load();
+        console.log("Playing with HTML5 player:", {
+            url: streamUrl,
+            type: type,
+            userAgent: customUserAgent,
+            title: title,
+            timestamp: new Date()
+        });
+
+        // Attempt to set User Agent via fetch (for proxy or testing)
+        fetch(streamUrl, {
+            headers: { "User-Agent": customUserAgent }
+        }).catch(err => {
+            console.log("Fetch error (likely CORS):", err);
+            document.getElementById("errorLog").innerText = "Error: Gagal memuat video, kemungkinan karena CORS atau URL tidak valid.";
+            document.getElementById("errorHelp").style.display = "block";
+        });
+
+        player.play().catch(err => {
+            console.log("Play failed:", err);
+            document.getElementById("errorLog").innerText = "Error: Gagal memutar video. Pastikan URL valid atau coba URL lain.";
+            document.getElementById("errorHelp").style.display = "block";
+        });
+    }
+
     document.getElementById("videoTitle").innerText = title;
     document.getElementById("errorLog").innerText = "";
     document.getElementById("errorHelp").style.display = "none";
-
-    // Log stream attempt
-    console.log("Attempting to play stream:", {
-        url: streamUrl,
-        type: type,
-        title: title,
-        timestamp: new Date()
-    });
-
-    // Attempt to play
-    player.play().catch(err => {
-        console.log("Play failed:", err);
-        document.getElementById("errorLog").innerText = "Error: Gagal memutar video. Pastikan URL valid atau coba URL lain.";
-        document.getElementById("errorHelp").style.display = "block";
-    });
 }
