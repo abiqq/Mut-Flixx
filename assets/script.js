@@ -4,43 +4,50 @@ const content = [
         title: "JurnaRisa by Risa Saraswati (2024)",
         genre: "Horror Indo",
         thumbnail: "https://image.tmdb.org/t/p/original/znicsfFuTboZsNzBdZNKYp7VH4P.jpg",
-        streamUrl: "https://uqloads.xyz/stream/XWardVakU6O1T7En9R6-lA/kjhhiuahiuhgihdf/1751381966/27789856/index-v1-a1.m3u8"
+        streamUrl: "https://uqloads.xyz/stream/XWardVakU6O1T7En9R6-lA/kjhhiuahiuhgihdf/1751381966/27789856/index-v1-a1.m3u8",
+        fallbackUrl: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8" // Fallback URL
     },
     {
         title: "Ketindihan",
         genre: "Horror Indo",
         thumbnail: "https://www.endcoalnow.com/wp-content/uploads/2025/05/lGAqDi4IeLTzLmFXOEwNPSLBU3Z-152x228.jpg",
-        streamUrl: "https://movearnpre.com/stream/tRn2P440jxhZQI_IMSnpJQ/hjkrhuihghfvu/1751382757/25628213/index-v1-a1.m3u8"
+        streamUrl: "https://movearnpre.com/stream/tRn2P440jxhZQI_IMSnpJQ/hjkrhuihghfvu/1751382757/25628213/index-v1-a1.m3u8",
+        fallbackUrl: "https://www.w3schools.com/html/mov_bbb.mp4" // Fallback URL
     },
     {
         title: "Marni: The Story Of Wewe Gombel",
         genre: "Horror Indo",
         thumbnail: "https://www.endcoalnow.com/marni-the-story-of-wewe-gombel/",
-        streamUrl: "https://smoothpre.com/stream/IPZgvFl7u9qUHu7FyWDT7A/hjkrhuihghfvu/1751382894/23805400/index-v1-a1.m3u8"
+        streamUrl: "https://smoothpre.com/stream/IPZgvFl7u9qUHu7FyWDT7A/hjkrhuihghfvu/1751382894/23805400/index-v1-a1.m3u8",
+        fallbackUrl: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
     },
     {
         title: "Petaka Gunung Gede (2025)",
         genre: "Horror Indo",
         thumbnail: "https://new14.ngefilm.site/wp-content/uploads/2025/06/rmh9oNW0eaUwhQyW22mgzur0NpE-170x255.webp",
-        streamUrl: "https://movearnpre.com/stream/UYQ-AqNx_fWwwKeMcZhhKw/hjkrhuihghfvu/1751383107/26702917/index-v1-a1.m3u8"
+        streamUrl: "https://movearnpre.com/stream/UYQ-AqNx_fWwwKeMcZhhKw/hjkrhuihghfvu/1751383107/26702917/index-v1-a1.m3u8",
+        fallbackUrl: "https://www.w3schools.com/html/mov_bbb.mp4"
     },
     {
         title: "Pulung Gantung: Panti Ngendat (2024)",
         genre: "Horror Indo",
         thumbnail: "https://new14.ngefilm.site/wp-content/uploads/2025/06/v0izepha1mQpK0i71usiTZAzGsr.jpg",
-        streamUrl: "https://movearnpre.com/stream/wtp_sOi8vwke1OZblLZFdg/hjkrhuihghfvu/1751383266/26555811/index-v1-a1.m3u8"
+        streamUrl: "https://movearnpre.com/stream/wtp_sOi8vwke1OZblLZFdg/hjkrhuihghfvu/1751383266/26555811/index-v1-a1.m3u8",
+        fallbackUrl: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
     },
     {
         title: "Rumah Teteh Story of Helena (2025)",
         genre: "Horror Indo",
         thumbnail: "https://new14.ngefilm.site/wp-content/uploads/2025/06/3M2SLZCS9zkgOFrAr1MsTYoULNs.jpg",
-        streamUrl: "https://movearnpre.com/stream/9Xiw42UvvxfjNUmbJLuijg/hjkrhuihghfvu/1751383433/26713049/index-v1-a1.m3u8"
+        streamUrl: "https://movearnpre.com/stream/9Xiw42UvvxfjNUmbJLuijg/hjkrhuihghfvu/1751383433/26713049/index-v1-a1.m3u8",
+        fallbackUrl: "https://www.w3schools.com/html/mov_bbb.mp4"
     },
     {
         title: "Jailangku Sandekala (2022)",
         genre: "Horror Indo",
         thumbnail: "https://new14.ngefilm.site/wp-content/uploads/2025/06/rrAG3nzfG4pNkmTZTSxBAespWyD.jpg",
-        streamUrl: "https://gradehgplus.com/stream/7dlwu3bO9tGJs19SmYcjSQ/kjhhiuahiuhgihdf/1751383543/53473043/index-v1-a1.m3u8"
+        streamUrl: "https://gradehgplus.com/stream/7dlwu3bO9tGJs19SmYcjSQ/kjhhiuahiuhgihdf/1751383543/53473043/index-v1-a1.m3u8",
+        fallbackUrl: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
     }
 ];
 
@@ -161,12 +168,25 @@ function setupVideoPlayer() {
 
     player.on("error", () => {
         const error = player.error();
-        const errorMessage = `Error: ${error?.message || "Unknown error"} (Code: ${error?.code || "N/A"})`;
+        const errorMessage = `Error: ${error?.message || "Media tidak dapat dimuat"} (Kode: ${error?.code || "N/A"})`;
         document.getElementById("errorLog").innerText = errorMessage;
         document.getElementById("errorHelp").style.display = "block";
 
-        // Log to console
-        console.log("Stream Error:", errorMessage, "URL:", player.currentSrc());
+        // Detailed logging for debugging
+        console.log("Stream Error Details:", {
+            message: errorMessage,
+            url: player.currentSrc(),
+            type: player.currentType(),
+            timestamp: new Date()
+        });
+
+        // Try fallback URL if available
+        const currentUrl = player.currentSrc();
+        const contentItem = content.find(item => item.streamUrl === currentUrl);
+        if (contentItem && contentItem.fallbackUrl) {
+            console.log("Attempting fallback URL:", contentItem.fallbackUrl);
+            player.src({ src: contentItem.fallbackUrl, type: contentItem.fallbackUrl.endsWith(".m3u8") ? "application/x-mpegURL" : "video/mp4" });
+        }
 
         // Optional: Send error to server
         // fetch('/log-error', {
@@ -182,6 +202,7 @@ function playStream(streamUrl, title = "Streaming Content") {
     if (!streamUrl) {
         document.getElementById("errorLog").innerText = "Error: Tidak ada URL yang diberikan";
         document.getElementById("errorHelp").style.display = "block";
+        console.log("Stream Error: No URL provided");
         return;
     }
 
@@ -199,4 +220,12 @@ function playStream(streamUrl, title = "Streaming Content") {
     document.getElementById("videoTitle").innerText = title;
     document.getElementById("errorLog").innerText = "";
     document.getElementById("errorHelp").style.display = "none";
+
+    // Log stream attempt
+    console.log("Attempting to play stream:", {
+        url: streamUrl,
+        type: type,
+        title: title,
+        timestamp: new Date()
+    });
 }
