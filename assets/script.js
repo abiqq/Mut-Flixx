@@ -163,6 +163,7 @@ function setupVideoPlayer() {
         const error = player.error();
         const errorMessage = `Error: ${error?.message || "Unknown error"} (Code: ${error?.code || "N/A"})`;
         document.getElementById("errorLog").innerText = errorMessage;
+        document.getElementById("errorHelp").style.display = "block";
 
         // Log to console
         console.log("Stream Error:", errorMessage, "URL:", player.currentSrc());
@@ -179,7 +180,8 @@ function setupVideoPlayer() {
 // Play stream from URL
 function playStream(streamUrl, title = "Streaming Content") {
     if (!streamUrl) {
-        document.getElementById("errorLog").innerText = "Error: No URL provided";
+        document.getElementById("errorLog").innerText = "Error: Tidak ada URL yang diberikan";
+        document.getElementById("errorHelp").style.display = "block";
         return;
     }
 
@@ -191,7 +193,10 @@ function playStream(streamUrl, title = "Streaming Content") {
         type = "application/dash+xml"; // DASH
     }
 
+    // Proxy URL (uncomment and configure if needed)
+    // const proxyUrl = `http://localhost:3000/proxy?url=${encodeURIComponent(streamUrl)}`;
     player.src({ src: streamUrl, type });
     document.getElementById("videoTitle").innerText = title;
     document.getElementById("errorLog").innerText = "";
+    document.getElementById("errorHelp").style.display = "none";
 }
